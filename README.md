@@ -1,6 +1,6 @@
 # PrAdriIker
 
-Mensaje Bondadoso
+Mensaje Bondadoso.
 Maese LeGon le rogamos que sea bondadoso con la correción de los ejercicios.
 
 De:Iker y Adri
