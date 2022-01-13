@@ -1,6 +1,44 @@
-<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<?php
+	session_start();
+
+	if(isset($_SESSION['user_id'])){
+		header('Location: home.php');
+		exit;
+	}
+	include("./Llibreries/querysSQL.php");
+	if($_SERVER["REQUEST_METHOD"] == "POST"){
+		$username = $_POST['username'];
+		$password = $_POST['password'];
+		$mostraUser->execute(array(':username'=>$username));      
+		foreach ($mostraUser as $fila) {
+			$passSelect=$fila['passHash'];
+			$idUser=$fila['iduser'];
+			$active=$fila['active'];
+			$nombreUsuario=$fila['username'];
+		}
+		if(empty($active))$active=null; 
+		if($active==1){
+			if (password_verify($password,$passSelect)) {
+				$date=setDate();
+				$update->execute(array(':username'=>$username,':fecha'=>$date));
+				if($update){
+					session_start();    
+					$_SESSION['user_id'] = $idUser;
+					$_SESSION['username'] = $nombreUsuario;
+					header('Location: ./home.php');
+					exit;    
+				}else{
+					print_r( $db->errorinfo());
+				}
+			} 
+		}    
+		else {
+			error();
+		}
+	}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,14 +66,13 @@
 						<div class="input-group-prepend">
 							<span class="input-group-text"><i class="fas fa-user"></i></span>
 						</div>
-						<input type="text" class="form-control" id="user/mail" name="user/mail" placeholder="Username/Mail" autocomplete="off" autofocus required>
-						
+						<input type="text" class="form-control" id="username" name="username" placeholder="Username/Mail" autocomplete="off" autofocus required>
 					</div>
 					<div class="input-group form-group">
 						<div class="input-group-prepend">
 							<span class="input-group-text"><i class="fas fa-key"></i></span>
 						</div>
-						<input type="password" class="form-control" placeholder="Password" id="pass" name="pass" autocomplete="off" required>
+						<input type="password" class="form-control" placeholder="Password" id="password" name="password" autocomplete="off" required>
 					</div>
 					<div class="form-group">
 						<input type="submit" value="Login" class="btn float-right login_btn">
