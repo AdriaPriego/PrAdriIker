@@ -9,7 +9,6 @@
 	}
 	include("./Llibreries/querysSQL.php");
 	if($_SERVER["REQUEST_METHOD"] == "POST"){
-		$error=false;
 		if(isset($_POST['user']) && isset($_POST['mail'])
         && isset($_POST['pass']) && isset($_POST['passVerify'])){
 			if($_POST['pass']==$_POST['passVerify'])
@@ -21,29 +20,32 @@
 				$lnamePost=filter_input(INPUT_POST,'lname');
 				$passPost=filter_input(INPUT_POST,'pass');	
 				$passVPost=filter_input(INPUT_POST,'passVerify');
+				$codeActivacio=hash('sha256',random_int(0,10000));
 				$date = setDate();
 				$passHash=password_hash($passPost,PASSWORD_DEFAULT);
 				$insert=registrarBD();
-				$insert->execute(array(':mail'=>$mailPost,':username'=>$userPost,':passHash'=>$passHash,':userFirstName'=>$fnamePost,':userLastName'=>$lnamePost,':creationDate'=>$date ,':active'=>1));        
+				$insert->execute(array(':mail'=>$mailPost,':username'=>$userPost,':passHash'=>$passHash,':userFirstName'=>$fnamePost,':userLastName'=>$lnamePost,':creationDate'=>$date ,':active'=>0,':codeActiu'=>$codeActivacio));        
 				///COMPROBA QUE NO INSERTI LES MATEIXES DADES UN ALTRE COP
 				if(($insert->rowCount())==0){
 					//Anulem transacció
 					$db->rollback();
-					$error=true;
+					error();
 				}else{
 					//Ha anat bé
 					$db->commit();
+					enviarMail($mailPost,$userPost,$codeActivacio);
+					header('Location: index.php');
+					exit;
 				}
 			}
 			else{
-				$error=true;
+				error();
 			} 
 			
 		}
 		else {
-			$error=true;
+			error();
 		}
-
 	} 
 	
 ?>
@@ -63,17 +65,6 @@
 		<div class="card">
             <div class="card-header">
                 <h3>Complete the fields</h3>
-				<?php
-					if(isset($error)){
-						if($error){
-							error();
-						}
-						else {
-							header('Location: ./index.php');
-							exit;
-						}	
-					}
-				?>
             </div>
 			<div class="card-body">
 				<form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">

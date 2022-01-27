@@ -1,5 +1,7 @@
 <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <?php
 	session_start();
 
@@ -84,7 +86,8 @@
 					Don't have an account?<a href="./register.php">Sign Up</a>
 				</div>
 				<div class="d-flex justify-content-center">
-					<a href="#">Forgot your password?</a>
+				<script type ="text/javascript" src="js/funciones.js"></script>
+					<button onclick="forgot()">Forgot your password?</button>
 				</div>
 			</div>
 		</div>
